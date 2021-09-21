@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+  http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd">
+
+    <changeSet id="add_table_authors" author="ab060590mmg">
+        <createTable tableName="authors">
+            <column name="id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="surname" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patronymic" type="varchar(100)"/>
+            <column name="date_of_birth" type="date"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_table_genres" author="ab060590mmg">
+        <createTable tableName="genres">
+            <column name="id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="insert_into_genres" author="ab060590mmg">
+        <insert tableName="genres">
+            <column name="name" value="Fantasy"/>
+            <column name="name" value="Unknown"/>
+            <column name="name" value="Documental"/>
+            <column name="name" value="Historical"/>
+            <column name="name" value="Romantic"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="add_table_books" author="ab060590mmg">
+        <createTable tableName="books">
+            <column name="barcode" type="bigint">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="author_id" type="int">
+                <constraints referencedTableName="authors" referencedColumnNames="id" foreignKeyName="fk_authors_id"
+                             nullable="false"/>
+            </column>
+            <column name="name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="decimal">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_table_bookshops" author="ab060590mmg">
+        <createTable tableName="bookshops">
+            <column name="store_number" type="int">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="address_id" type="int">
+                <constraints referencedTableName="addresses" referencedColumnNames="id" foreignKeyName="fk_address_id"
+                             nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_table_book_genres" author="ab060590mmg">
+        <createTable tableName="book_genres">
+            <column name="book_barcode" type="bigint">
+                <constraints referencedTableName="books" referencedColumnNames="barcode" foreignKeyName="fk_books_barcode"
+                             nullable="false"/>
+            </column>
+            <column name="genre_id" type="int">
+                <constraints referencedTableName="genres" referencedColumnNames="id" foreignKeyName="fk_genre_id"
+                             nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="book_genres" columnNames="book_barcode, genre_id" constraintName="unq_pair_book_genre"/>
+    </changeSet>
+
+    <changeSet id="add_table_warehouses" author="ab060590mmg">
+        <createTable tableName="warehouses">
+            <column name="store_number" type="int">
+                <constraints referencedTableName="bookshops" referencedColumnNames="store_number" foreignKeyName="fk_bookshop"
+                             nullable="false"/>
+            </column>
+            <column name="barcode" type="bigint">
+                <constraints referencedTableName="books" referencedColumnNames="barcode" foreignKeyName="fk_books_barcode"
+                             nullable="false"/>
+            </column>
+            <column name="number" type="int" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="warehouses" columnNames="store_number, barcode" constraintName="unq_pair_store_book"/>
+    </changeSet>
+
+</databaseChangeLog>

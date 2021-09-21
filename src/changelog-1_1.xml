@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd
+  http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd">
+
+    <changeSet id="add_table_cities" author="ab060590mmg">
+        <createTable tableName="cities">
+            <column name="id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!--<changeSet id="insert_into_cities" author="ab060590mmg">
+        <insert tableName="cities">
+            <column name="name" value="Днепр"/>
+            <column name="name" value="Харьков"/>
+            <column name="name" value="Киев"/>
+        </insert>
+    </changeSet>-->
+
+    <changeSet id="add_table_streets" author="ab060590mmg">
+        <createTable tableName="streets">
+            <column name="id" type="int">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="city_id" type="int">
+                <constraints referencedTableName="cities" referencedColumnNames="id" foreignKeyName="fk_city_id"
+                             nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="streets" columnNames="city_id, name" constraintName="unq_pair_city_street"/>
+    </changeSet>
+
+    <!-- <changeSet id="insert_into_streets" author="ab060590mmg">
+         <insert tableName="streets">
+             <column name="city_id" value="1"/>
+             <column name="name" value="Титова"/>
+         </insert>
+         <insert tableName="streets">
+             <column name="city_id" value="2"/>
+             <column name="name" value="Гагарина"/>
+         </insert>
+         <insert tableName="streets">
+             <column name="city_id" value="1"/>
+             <column name="name" value="Победы"/>
+         </insert>
+     </changeSet>-->
+
+    <changeSet id="add_table_massives" author="ab060590mmg">
+        <createTable tableName="massives">
+            <column name="id" type="int">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="city_id" type="int">
+                <constraints referencedTableName="cities" referencedColumnNames="id" foreignKeyName="fk_city_id"
+                             nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="massives" columnNames="city_id, name" constraintName="unq_pair_city_massive"/>
+    </changeSet>
+
+    <!--  <changeSet id="insert_into_massives" author="ab060590mmg">
+          <insert tableName="massives">
+              <column name="city_id" value="1"/>
+              <column name="name" value="Тополь-3"/>
+          </insert>
+          <insert tableName="streets">
+              <column name="city_id" value="3"/>
+              <column name="name" value="Массив-1"/>
+          </insert>
+      </changeSet>-->
+
+    <changeSet id="add_table_addresses" author="ab060590mmg">
+        <createTable tableName="addresses">
+            <column name="id" type="serial">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="city_id" type="int">
+                <constraints referencedTableName="cities" referencedColumnNames="id" foreignKeyName="fk_city_id"
+                             nullable="false"/>
+            </column>
+            <column name="street_id" type="int">
+                <constraints referencedTableName="streets" referencedColumnNames="id" foreignKeyName="fk_street_id"/>
+            </column>
+            <column name="massive_id" type="int">
+                <constraints referencedTableName="massives" referencedColumnNames="id" foreignKeyName="fk_massive_id"/>
+            </column>
+            <column name="block" type="int"/>
+            <column name="building" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="floor" type="int" defaultValue="1"/>
+            <column name="flat" type="int"/>
+            <!--<constraints checkConstraint=""-->
+        </createTable>
+        <addUniqueConstraint tableName="addresses" columnNames="street_id, building, flat" constraintName="unq_street_building_flat"/>
+        <addUniqueConstraint tableName="addresses" columnNames="massive_id, building, flat" constraintName="unq_massive_building_flat"/>
+        <sql>
+            alter table addresses add constraint chk_mandatory_street_or_massive CHECK (street_id is not null or massive_id is not null);
+            alter table addresses add constraint chk_building CHECK (building>0);
+            alter table addresses add constraint chk_block CHECK (block is null or block>0);
+            alter table addresses add constraint chk_floor CHECK (floor>0);
+            alter table addresses add constraint chk_flat CHECK (flat is null or flat>0);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
